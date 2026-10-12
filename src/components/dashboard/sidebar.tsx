@@ -1,16 +1,12 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import {
-  ChevronLeft,
-  CircleDollarSign,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
+import { CircleDollarSign, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 
+import { SourceLogo } from "@/components/dashboard/source-logo";
 import { GlassButton } from "@/components/glass/glass-button";
 import { dashboardNav, incomeSourceNav } from "@/lib/navigation";
 import { cn } from "@/lib/utils";
@@ -104,7 +100,7 @@ export function Sidebar() {
                       : "text-[var(--ld-text-muted)] hover:bg-[var(--ld-bg-surface)] hover:text-[var(--ld-text-secondary)]",
                   )}
                 >
-                  <ChevronLeft className="h-3 w-3 rotate-180 opacity-40" />
+                  <SourceLogo slug={source.slug} name={source.label} size={collapsed ? 28 : 24} />
                   {!collapsed && <span className="truncate">{source.label}</span>}
                 </Link>
               );

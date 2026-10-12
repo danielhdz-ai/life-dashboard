@@ -3,32 +3,43 @@
 import { motion, useReducedMotion } from "framer-motion";
 
 import { BusinessCards } from "@/components/dashboard/business-cards";
+import { BusinessLogoStrip } from "@/components/dashboard/business-logo-strip";
+import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { IncomeStackedChart } from "@/components/dashboard/income-chart";
+import { PaymentCalendar } from "@/components/dashboard/payment-calendar";
 import { SourceDonut } from "@/components/dashboard/source-donut";
-import { CalendarGrid } from "@/components/glass/calendar-grid";
+import { UpcomingPayments } from "@/components/dashboard/upcoming-payments";
 import { GlassCard } from "@/components/glass/glass-card";
 import { StatCard } from "@/components/glass/stat-card";
+import type { CalendarMonthSummary } from "@/lib/dashboard/calendar-queries";
 import type { DashboardSummary } from "@/lib/dashboard/queries";
 import { formatCurrency } from "@/lib/format";
 
 const stagger = {
   hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
 };
 
 const item = {
-  hidden: { opacity: 0, y: 14 },
+  hidden: { opacity: 0, y: 12 },
   show: { opacity: 1, y: 0 },
 };
 
 type Props = {
   summary: DashboardSummary | null;
+  calendar: CalendarMonthSummary | null;
   missingConfig?: "supabase";
   todayLabel: string;
   greetingHour: number;
 };
 
-export function HomePage({ summary, missingConfig, todayLabel, greetingHour }: Props) {
+export function HomePage({
+  summary,
+  calendar,
+  missingConfig,
+  todayLabel,
+  greetingHour,
+}: Props) {
   const reduceMotion = useReducedMotion();
   const greeting = getGreeting(greetingHour);
 
@@ -48,96 +59,122 @@ export function HomePage({ summary, missingConfig, todayLabel, greetingHour }: P
       variants={reduceMotion ? undefined : stagger}
       initial="hidden"
       animate="show"
-      className="mx-auto max-w-7xl space-y-8"
+      className="mx-auto max-w-[1600px] space-y-10"
     >
-      <motion.header variants={item} className="space-y-1">
-        <p className="text-sm text-[var(--ld-text-muted)] capitalize">
-          {todayLabel || "…"}
-          {summary?.monthLabel ? ` · ${summary.monthLabel}` : ""}
-        </p>
-        <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
-          {greeting}, Daniel
-        </h1>
-        {missingConfig === "supabase" && (
-          <p className="text-sm text-[var(--ld-warning)]">
-            Configura `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` en
-            `.env.local` y aplica migraciones con `supabase db push`.
-          </p>
-        )}
+      <motion.header variants={item} className="flex flex-wrap items-end justify-between gap-4">
+        <div className="space-y-1">
+          <p className="text-sm text-[var(--ld-text-muted)] capitalize">{todayLabel || "…"}</p>
+          <h1 className="text-3xl font-semibold tracking-tight md:text-4xl">
+            {greeting}, Daniel
+          </h1>
+          {missingConfig === "supabase" && (
+            <p className="text-sm text-[var(--ld-warning)]">
+              Configura Supabase y ejecuta `scripts/all-migrations.sql`.
+            </p>
+          )}
+        </div>
+        <GlassCard className="px-4 py-3" spotlight={false}>
+          <BusinessLogoStrip />
+        </GlassCard>
       </motion.header>
 
-      <motion.div variants={item} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Beneficio neto (mes)"
-          value={formatCurrency(net)}
-          hint="Ingresos netos − gastos"
-          trend={
-            deltaPct != null
-              ? {
-                  value: `${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)} %`,
-                  positive: deltaPct >= 0,
-                }
-              : undefined
-          }
-        />
-        <StatCard
-          label="Ingresos brutos"
-          value={formatCurrency(summary?.grossIncome ?? 0)}
-          hint="Mes en curso"
-        />
-        <StatCard
-          label="Cobrado / pendiente"
-          value={`${formatCurrency(summary?.collected ?? 0)} / ${formatCurrency(summary?.pending ?? 0)}`}
-        />
-        <StatCard
-          label="Objetivo mensual"
-          value={
-            summary?.goalTarget
-              ? `${summary.goalProgress.toFixed(0)} %`
-              : "Sin objetivo"
-          }
-          hint={
-            summary?.goalTarget
-              ? `Meta ${formatCurrency(summary.goalTarget)}`
-              : "Configura en Ajustes (próx.)"
-          }
-        />
+      {/* Hero: calendario principal */}
+      <motion.div variants={item} className="grid gap-4 xl:grid-cols-[1fr_320px]">
+        {calendar ? (
+          <PaymentCalendar initial={calendar} />
+        ) : (
+          <GlassCard className="flex min-h-[420px] items-center justify-center p-8">
+            <p className="text-sm text-[var(--ld-text-muted)]">
+              Calendario disponible tras conectar Supabase.
+            </p>
+          </GlassCard>
+        )}
+        <div className="flex flex-col gap-4">
+          {calendar && <UpcomingPayments payments={calendar.payments} />}
+          <GlassCard className="p-5" spotlight={false}>
+            <p className="text-[11px] font-medium uppercase tracking-[0.14em] text-[var(--ld-text-faint)]">
+              Mes en curso
+            </p>
+            <p className="ld-sensitive mt-2 text-2xl font-semibold tabular-nums">
+              {formatCurrency(calendar?.totalIncome ?? summary?.grossIncome ?? 0)}
+            </p>
+            <p className="mt-1 text-xs text-[var(--ld-text-muted)]">
+              Beneficio neto estimado{" "}
+              <span className="ld-sensitive font-medium text-[var(--ld-text-primary)]">
+                {formatCurrency(net)}
+              </span>
+            </p>
+          </GlassCard>
+        </div>
       </motion.div>
 
-      <motion.div variants={item} className="grid gap-4 lg:grid-cols-3">
-        <GlassCard className="lg:col-span-2 p-6" elevation="raised">
-          <h2 className="text-lg font-medium">Ingresos por mes</h2>
-          <p className="mt-1 text-sm text-[var(--ld-text-muted)]">
-            Últimos 12 meses por negocio (neto)
-          </p>
-          <div className="mt-4">
-            {summary ? (
-              <IncomeStackedChart data={summary.monthlyChart} sourceKeys={sourceKeys} />
-            ) : (
-              <div className="flex h-52 items-center justify-center text-sm text-[var(--ld-text-faint)]">
-                Sin datos
-              </div>
-            )}
-          </div>
-        </GlassCard>
-        <GlassCard className="p-6">
-          <h2 className="text-lg font-medium">Reparto del mes</h2>
-          <div className="mt-4">
-            {summary ? <SourceDonut data={summary.sourceBreakdown} /> : null}
-          </div>
-        </GlassCard>
-      </motion.div>
+      <DashboardSection title="Rendimiento" subtitle="KPIs clave del mes">
+        <motion.div variants={item} className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            label="Beneficio neto"
+            value={formatCurrency(net)}
+            hint="Ingresos netos − gastos"
+            trend={
+              deltaPct != null
+                ? {
+                    value: `${deltaPct >= 0 ? "+" : ""}${deltaPct.toFixed(1)} %`,
+                    positive: deltaPct >= 0,
+                  }
+                : undefined
+            }
+          />
+          <StatCard
+            label="Ingresos brutos"
+            value={formatCurrency(summary?.grossIncome ?? 0)}
+          />
+          <StatCard
+            label="Cobrado / pendiente"
+            value={`${formatCurrency(summary?.collected ?? 0)} / ${formatCurrency(summary?.pending ?? 0)}`}
+          />
+          <StatCard
+            label="Objetivo mensual"
+            value={
+              summary?.goalTarget
+                ? `${summary.goalProgress.toFixed(0)} %`
+                : "Sin objetivo"
+            }
+            hint={
+              summary?.goalTarget
+                ? `Meta ${formatCurrency(summary.goalTarget)}`
+                : "Próx. en Ajustes"
+            }
+          />
+        </motion.div>
+      </DashboardSection>
+
+      <DashboardSection title="Análisis" subtitle="Tendencia y reparto por negocio">
+        <motion.div variants={item} className="grid gap-4 lg:grid-cols-3">
+          <GlassCard className="lg:col-span-2 p-6" elevation="raised">
+            <h3 className="text-base font-medium">Ingresos · 12 meses</h3>
+            <div className="mt-4">
+              {summary ? (
+                <IncomeStackedChart data={summary.monthlyChart} sourceKeys={sourceKeys} />
+              ) : (
+                <div className="flex h-52 items-center justify-center text-sm text-[var(--ld-text-faint)]">
+                  Sin datos
+                </div>
+              )}
+            </div>
+          </GlassCard>
+          <GlassCard className="p-6">
+            <h3 className="text-base font-medium">Reparto del mes</h3>
+            <div className="mt-4">{summary ? <SourceDonut data={summary.sourceBreakdown} /> : null}</div>
+          </GlassCard>
+        </motion.div>
+      </DashboardSection>
 
       {summary && (
-        <motion.div variants={item}>
-          <h2 className="mb-3 text-lg font-medium">Negocios</h2>
-          <BusinessCards businesses={summary.businesses} />
-        </motion.div>
+        <DashboardSection title="Negocios" subtitle="Margen y evolución por fuente">
+          <motion.div variants={item}>
+            <BusinessCards businesses={summary.businesses} />
+          </motion.div>
+        </DashboardSection>
       )}
-
-      <motion.div variants={item}>
-        <CalendarGrid />
-      </motion.div>
     </motion.div>
   );
 }

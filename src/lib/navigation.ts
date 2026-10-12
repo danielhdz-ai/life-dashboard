@@ -31,14 +31,15 @@ export const dashboardNav: DashboardNavItem[] = [
   { href: "/avisos", label: "Avisos", icon: Bell, description: "Correos y detecciones" },
   { href: "/asistente", label: "Asistente IA", icon: Bot, description: "Chat con Gemini" },
   { href: "/ajustes", label: "Ajustes", icon: Settings, description: "Cuentas y reglas" },
+  { href: "/empezar", label: "Empezar", icon: Settings, description: "Solo lo imprescindible" },
 ];
 
 export const incomeSourceNav = [
   { slug: "livendia", label: "Livendia" },
-  { slug: "inmonest", label: "Inmonest" },
+  { slug: "nuevahabitat", label: "NuevaHabitat" },
   { slug: "firmacert", label: "FirmaCert" },
   { slug: "mercat-immobiliari", label: "Mercat Immobiliari" },
-  { slug: "nuevahabitat", label: "NuevaHabitat" },
+  { slug: "inmonest", label: "Inmonest" },
 ] as const;
 
 export function getCommandPages() {

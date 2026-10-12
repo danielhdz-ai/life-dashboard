@@ -16,10 +16,10 @@ begin
   insert into public.income_sources (user_id, slug, name, source_type, color, icon, capture_mode, sort_order)
   values
     (p_user_id, 'livendia', 'Livendia', 'variable', '#7c9cbf', 'building-2', 'email', 1),
-    (p_user_id, 'inmonest', 'Inmonest', 'variable', '#9b8ec4', 'home', 'email', 2),
+    (p_user_id, 'nuevahabitat', 'NuevaHabitat', 'variable', '#b8909e', 'map-pin', 'manual', 2),
     (p_user_id, 'firmacert', 'FirmaCert', 'recurrente', '#7eb8a8', 'file-signature', 'email', 3),
     (p_user_id, 'mercat-immobiliari', 'Mercat Immobiliari', 'fixed', '#c4a87a', 'landmark', 'recurrente', 4),
-    (p_user_id, 'nuevahabitat', 'NuevaHabitat', 'variable', '#b8909e', 'map-pin', 'manual', 5);
+    (p_user_id, 'inmonest', 'Inmonest', 'variable', '#9b8ec4', 'home', 'email', 5);
 
   select id into v_mercat_id
   from public.income_sources
