@@ -5,6 +5,7 @@ export function getAllowedEmail(): string | null {
 
 export function isEmailAllowed(email: string): boolean {
   const allowed = getAllowedEmail();
-  if (!allowed) return false;
+  // Sin ALLOWED_EMAIL configurado, no bloquear (dev); en prod debe estar definido.
+  if (!allowed) return process.env.NODE_ENV !== "production";
   return email.trim().toLowerCase() === allowed;
 }

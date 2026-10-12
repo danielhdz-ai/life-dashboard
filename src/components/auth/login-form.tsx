@@ -30,10 +30,19 @@ export function LoginForm() {
     e.preventDefault();
     setLoading(true);
     setError(null);
+
+    if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      setError("Falta configuración de Supabase en el servidor. Contacta soporte.");
+      setLoading(false);
+      return;
+    }
+
     const supabase = createClient();
 
+    const normalizedEmail = email.trim().toLowerCase();
+
     const { error: signInError } = await supabase.auth.signInWithPassword({
-      email,
+      email: normalizedEmail,
       password,
     });
 
@@ -60,8 +69,8 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/");
-    router.refresh();
+    setLoading(false);
+    window.location.assign("/");
   }
 
   async function handleMfa(e: React.FormEvent) {
@@ -91,8 +100,8 @@ export function LoginForm() {
       return;
     }
 
-    router.push("/");
-    router.refresh();
+    setLoading(false);
+    window.location.assign("/");
   }
 
   return (

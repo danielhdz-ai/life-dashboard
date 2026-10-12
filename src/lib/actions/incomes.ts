@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireServerDataClient } from "@/lib/supabase/data-client";
 import { syncRecurringEntries } from "@/lib/db/recurring-sync";
 
 const incomeSchema = z.object({
@@ -20,14 +20,10 @@ const incomeSchema = z.object({
 
 export async function createIncome(input: z.infer<typeof incomeSchema>) {
   const parsed = incomeSchema.parse(input);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("No autenticado");
+  const { supabase, userId } = await requireServerDataClient();
 
   const { error } = await supabase.from("incomes").insert({
-    user_id: user.id,
+    user_id: userId,
     source_id: parsed.sourceId,
     amount_gross: parsed.amountGross,
     amount_net: parsed.amountNet,
@@ -47,11 +43,8 @@ export async function createIncome(input: z.infer<typeof incomeSchema>) {
 }
 
 export async function syncRecurrencesAction() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return;
-  await syncRecurringEntries(supabase, user.id);
+  const ctx = await requireServerDataClient().catch(() => null);
+  if (!ctx) return;
+  await syncRecurringEntries(ctx.supabase, ctx.userId);
   revalidatePath("/");
 }

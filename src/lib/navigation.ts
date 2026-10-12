@@ -7,6 +7,7 @@ import {
   Home,
   Receipt,
   Settings,
+  Sparkles,
   Wallet,
 } from "lucide-react";
 
@@ -31,7 +32,7 @@ export const dashboardNav: DashboardNavItem[] = [
   { href: "/avisos", label: "Avisos", icon: Bell, description: "Correos y detecciones" },
   { href: "/asistente", label: "Asistente IA", icon: Bot, description: "Chat con Gemini" },
   { href: "/ajustes", label: "Ajustes", icon: Settings, description: "Cuentas y reglas" },
-  { href: "/empezar", label: "Empezar", icon: Settings, description: "Solo lo imprescindible" },
+  { href: "/empezar", label: "Empezar", icon: Sparkles, description: "Solo lo imprescindible" },
 ];
 
 export const incomeSourceNav = [

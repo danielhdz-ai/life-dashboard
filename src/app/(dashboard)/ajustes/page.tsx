@@ -5,16 +5,13 @@ import { EmailSettings } from "@/components/ajustes/email-settings";
 import { DashboardSection } from "@/components/dashboard/dashboard-section";
 import { GlassCard } from "@/components/glass/glass-card";
 import { listEmailAccountsForUser } from "@/lib/ajustes/email-accounts";
-import { createClient } from "@/lib/supabase/server";
+import { getServerDataClient } from "@/lib/supabase/data-client";
 
 export default async function AjustesPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const ctx = await getServerDataClient();
+  if (!ctx) redirect("/login");
 
-  const accounts = await listEmailAccountsForUser(user.id);
+  const accounts = await listEmailAccountsForUser(ctx.userId);
   const googleConfigured = Boolean(
     process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET,
   );

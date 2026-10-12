@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { createClient } from "@/lib/supabase/server";
+import { requireServerDataClient } from "@/lib/supabase/data-client";
 
 const expenseSchema = z.object({
   sourceId: z.string().uuid().optional(),
@@ -23,14 +23,10 @@ const expenseSchema = z.object({
 
 export async function createExpense(input: z.infer<typeof expenseSchema>) {
   const parsed = expenseSchema.parse(input);
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("No autenticado");
+  const { supabase, userId } = await requireServerDataClient();
 
   const { error } = await supabase.from("expenses").insert({
-    user_id: user.id,
+    user_id: userId,
     source_id: parsed.sourceId ?? null,
     amount: parsed.amount,
     expense_date: parsed.expenseDate,

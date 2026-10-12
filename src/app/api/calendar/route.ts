@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { parseISO } from "date-fns";
 
 import { fetchCalendarMonth } from "@/lib/dashboard/calendar-queries";
-import { createClient } from "@/lib/supabase/server";
+import { getServerDataClient } from "@/lib/supabase/data-client";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -11,15 +11,12 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: "Parámetro month inválido (yyyy-MM)" }, { status: 400 });
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const ctx = await getServerDataClient();
+  if (!ctx) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
   const viewDate = parseISO(`${month}-01`);
-  const data = await fetchCalendarMonth(supabase, user.id, viewDate);
+  const data = await fetchCalendarMonth(ctx.supabase, ctx.userId, viewDate);
   return NextResponse.json(data);
 }

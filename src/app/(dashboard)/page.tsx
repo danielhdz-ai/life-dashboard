@@ -8,7 +8,7 @@ import {
   fetchDashboardSummary,
 } from "@/lib/dashboard/queries";
 import { syncRecurringEntries } from "@/lib/db/recurring-sync";
-import { createClient } from "@/lib/supabase/server";
+import { getServerDataClient } from "@/lib/supabase/data-client";
 
 export const instant = false;
 
@@ -28,21 +28,19 @@ export default async function Page() {
     );
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) {
+  const ctx = await getServerDataClient();
+  if (!ctx) {
     redirect("/login");
   }
 
-  await ensureUserSeed(supabase, user.id);
-  await syncRecurringEntries(supabase, user.id);
+  const { supabase, userId } = ctx;
+
+  await ensureUserSeed(supabase, userId);
+  await syncRecurringEntries(supabase, userId);
 
   const [summary, calendar] = await Promise.all([
-    fetchDashboardSummary(supabase, user.id),
-    fetchCalendarMonth(supabase, user.id, now),
+    fetchDashboardSummary(supabase, userId),
+    fetchCalendarMonth(supabase, userId, now),
   ]);
 
   return (

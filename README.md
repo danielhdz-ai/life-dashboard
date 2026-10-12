@@ -49,13 +49,14 @@ Registro público deshabilitado en Supabase; solo inicio de sesión del propieta
 
 ## GitHub y Vercel
 
-- **Repo:** https://github.com/danielhdz-ai/life-dashboard  
-  (La cuenta `danielhdz4-ai` no existe en GitHub; el repo está en `danielhdz-ai`.)
+- **Repo:** https://github.com/danielhdz4-ai/life-dashboard
 - **Producción:** https://life-dashboard-seven-livid.vercel.app  
 - Variables de entorno ya cargadas en Vercel (desde `.env.local`, nunca en git).
 - Cron de correo: `0 8 * * *` (plan Hobby; en Pro se puede volver a cada 15 min).
 
-Conectar Git en Vercel (si falla por permisos entre cuentas): en el dashboard de Vercel → Project → Git → conectar `danielhdz-ai/life-dashboard`.
+Modo **acceso abierto** (temporal): `OPEN_DASHBOARD=true` en Vercel — sin login; datos del usuario `ALLOWED_EMAIL`. Vuelve a poner `false` cuando quieras login privado.
+
+Conectar Git en Vercel: Project → Git → `danielhdz4-ai/life-dashboard`.
 
 ## Primer arranque Supabase (una vez)
 

@@ -2,8 +2,13 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 import { isEmailAllowed } from "@/lib/auth/allowlist";
+import { isOpenDashboard } from "@/lib/auth/open-dashboard";
 
 export async function updateSession(request: NextRequest) {
+  if (isOpenDashboard()) {
+    return NextResponse.next();
+  }
+
   let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(

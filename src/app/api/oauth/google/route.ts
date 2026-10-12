@@ -1,14 +1,11 @@
 import { NextResponse } from "next/server";
 
 import { GMAIL_SCOPES, getGoogleOAuthClient } from "@/lib/email/google-oauth";
-import { createClient } from "@/lib/supabase/server";
+import { getServerDataClient } from "@/lib/supabase/data-client";
 
 export async function GET() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const ctx = await getServerDataClient();
+  if (!ctx) {
     return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_APP_URL));
   }
 
@@ -26,7 +23,7 @@ export async function GET() {
     access_type: "offline",
     prompt: "consent",
     scope: GMAIL_SCOPES,
-    state: user.id,
+    state: ctx.userId,
   });
 
   return NextResponse.redirect(url);

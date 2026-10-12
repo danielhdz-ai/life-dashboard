@@ -3,15 +3,12 @@ import { redirect } from "next/navigation";
 
 import { GlassButton } from "@/components/glass/glass-button";
 import { GlassCard } from "@/components/glass/glass-card";
-import { createClient } from "@/lib/supabase/server";
+import { getServerDataClient } from "@/lib/supabase/data-client";
 
 /** Solo lo que Daniel debe hacer a mano (sin terminal). */
 export default async function EmpezarPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
+  const ctx = await getServerDataClient();
+  if (!ctx) redirect("/login");
 
   const googleOk = Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";

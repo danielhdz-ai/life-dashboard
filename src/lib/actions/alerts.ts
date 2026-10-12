@@ -3,20 +3,16 @@
 import { revalidatePath } from "next/cache";
 
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { requireServerDataClient } from "@/lib/supabase/data-client";
 
 export async function confirmPaymentAlert(alertId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("No autenticado");
+  const { supabase, userId } = await requireServerDataClient();
 
   const { data: alert, error } = await supabase
     .from("payment_alerts")
     .select("*")
     .eq("id", alertId)
-    .eq("user_id", user.id)
+    .eq("user_id", userId)
     .single();
 
   if (error || !alert) throw new Error("Aviso no encontrado");
@@ -27,7 +23,7 @@ export async function confirmPaymentAlert(alertId: string) {
     const { data: fallback } = await supabase
       .from("income_sources")
       .select("id")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .order("sort_order")
       .limit(1)
       .maybeSingle();
@@ -36,7 +32,7 @@ export async function confirmPaymentAlert(alertId: string) {
 
   if (alert.detected_type === "ingreso" && alert.amount && sourceId) {
     await supabase.from("incomes").insert({
-      user_id: user.id,
+      user_id: userId,
       source_id: sourceId,
       amount_gross: alert.amount,
       amount_net: alert.amount,
@@ -50,7 +46,7 @@ export async function confirmPaymentAlert(alertId: string) {
 
   if (alert.detected_type === "gasto" && alert.amount) {
     await supabase.from("expenses").insert({
-      user_id: user.id,
+      user_id: userId,
       source_id: alert.source_id,
       amount: alert.amount,
       expense_date: alert.payment_date ?? new Date().toISOString().slice(0, 10),
@@ -70,34 +66,26 @@ export async function confirmPaymentAlert(alertId: string) {
 }
 
 export async function discardPaymentAlert(alertId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("No autenticado");
+  const { supabase, userId } = await requireServerDataClient();
 
   await supabase
     .from("payment_alerts")
     .update({ status: "descartado" })
     .eq("id", alertId)
-    .eq("user_id", user.id);
+    .eq("user_id", userId);
 
   revalidatePath("/avisos");
 }
 
 export async function disconnectEmailAccount(accountId: string) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) throw new Error("No autenticado");
+  const { userId } = await requireServerDataClient();
 
   const admin = createAdminClient();
   await admin
     .from("email_accounts")
     .update({ is_active: false })
     .eq("id", accountId)
-    .eq("user_id", user.id);
+    .eq("user_id", userId);
 
   revalidatePath("/ajustes");
 }

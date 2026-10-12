@@ -2,14 +2,11 @@ import { NextResponse } from "next/server";
 
 import { syncGmailAccount } from "@/lib/email/sync-gmail-account";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { getServerDataClient } from "@/lib/supabase/data-client";
 
 export async function POST() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const ctx = await getServerDataClient();
+  if (!ctx) {
     return NextResponse.json({ error: "No autenticado" }, { status: 401 });
   }
 
@@ -20,7 +17,7 @@ export async function POST() {
   const { data: accounts } = await admin
     .from("email_accounts")
     .select("id, user_id, email_address, encrypted_tokens, history_id")
-    .eq("user_id", user.id)
+    .eq("user_id", ctx.userId)
     .eq("is_active", true);
 
   const results = [];

@@ -4,6 +4,7 @@ import { Suspense } from "react";
 import { Search } from "lucide-react";
 
 import { AmbientBackground } from "@/components/dashboard/ambient-background";
+import { OpenModeBanner } from "@/components/dashboard/open-mode-banner";
 import { CommandPalette } from "@/components/dashboard/command-palette";
 import { PrivacyToggle } from "@/components/dashboard/privacy-toggle";
 import { Sidebar, SidebarFallback } from "@/components/dashboard/sidebar";
@@ -12,6 +13,7 @@ import { GlassButton } from "@/components/glass/glass-button";
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen text-[var(--ld-text-primary)]">
+      <OpenModeBanner />
       <AmbientBackground />
       <Suspense fallback={<SidebarFallback />}>
         <Sidebar />

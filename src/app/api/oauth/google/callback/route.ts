@@ -3,8 +3,8 @@ import { NextResponse } from "next/server";
 import { encryptSecret } from "@/lib/crypto/tokens";
 import { getGmailClient, getGoogleOAuthClient } from "@/lib/email/google-oauth";
 import { syncGmailAccount } from "@/lib/email/sync-gmail-account";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getServerDataClient } from "@/lib/supabase/data-client";
 
 export async function GET(request: Request) {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -17,14 +17,11 @@ export async function GET(request: Request) {
     return NextResponse.redirect(new URL("/ajustes?error=oauth", appUrl));
   }
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user || user.id !== stateUserId) {
+  const ctx = await getServerDataClient();
+  if (!ctx || ctx.userId !== stateUserId) {
     return NextResponse.redirect(new URL("/ajustes?error=oauth_user", appUrl));
   }
+  const userId = ctx.userId;
 
   const oauth2 = getGoogleOAuthClient(redirectUri);
   const { tokens } = await oauth2.getToken(code);
@@ -44,7 +41,7 @@ export async function GET(request: Request) {
     .from("email_accounts")
     .upsert(
       {
-        user_id: user.id,
+        user_id: userId,
         provider: "google",
         email_address: emailAddress.toLowerCase(),
         encrypted_tokens: encrypted,
