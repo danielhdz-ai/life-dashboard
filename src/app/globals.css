@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+/* ─── Life Dashboard — design tokens (glass / dark) ─── */
+:root {
+  --ld-bg-deep: #07070a;
+  --ld-bg-base: #0a0a0f;
+  --ld-bg-elevated: #0e0e12;
+  --ld-bg-surface: rgba(255, 255, 255, 0.04);
+  --ld-bg-surface-hover: rgba(255, 255, 255, 0.07);
+  --ld-bg-glass: rgba(255, 255, 255, 0.06);
+  --ld-bg-glass-strong: rgba(255, 255, 255, 0.09);
+
+  --ld-border-subtle: rgba(255, 255, 255, 0.08);
+  --ld-border-default: rgba(255, 255, 255, 0.12);
+  --ld-border-strong: rgba(255, 255, 255, 0.18);
+  --ld-inner-highlight: rgba(255, 255, 255, 0.06);
+
+  --ld-text-primary: rgba(255, 255, 255, 0.95);
+  --ld-text-secondary: rgba(255, 255, 255, 0.62);
+  --ld-text-muted: rgba(255, 255, 255, 0.42);
+  --ld-text-faint: rgba(255, 255, 255, 0.28);
+
+  --ld-accent: #a8b4ff;
+  --ld-accent-muted: rgba(168, 180, 255, 0.35);
+  --ld-accent-glow: rgba(168, 180, 255, 0.15);
+
+  --ld-success: #6ee7b7;
+  --ld-warning: #fcd34d;
+  --ld-danger: #f87171;
+
+  --ld-radius-sm: 12px;
+  --ld-radius-md: 16px;
+  --ld-radius-lg: 22px;
+  --ld-radius-xl: 28px;
+
+  --ld-blur-glass: 24px;
+  --ld-blur-heavy: 40px;
+
+  --ld-shadow-glass:
+    0 0 0 1px var(--ld-border-subtle) inset,
+    0 1px 0 0 var(--ld-inner-highlight) inset,
+    0 24px 48px -12px rgba(0, 0, 0, 0.55);
+
+  --ld-shadow-elevated:
+    0 0 0 1px var(--ld-border-default) inset,
+    0 1px 0 0 rgba(255, 255, 255, 0.08) inset,
+    0 32px 64px -16px rgba(0, 0, 0, 0.65);
+
+  /* Income source palette (desaturated, charts/chips only) */
+  --ld-source-livendia: #7c9cbf;
+  --ld-source-inmonest: #9b8ec4;
+  --ld-source-firmacert: #7eb8a8;
+  --ld-source-mercat: #c4a87a;
+  --ld-source-nuevahabitat: #b8909e;
+
+  --background: var(--ld-bg-deep);
+  --foreground: var(--ld-text-primary);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+
+  --color-ld-bg-deep: var(--ld-bg-deep);
+  --color-ld-bg-base: var(--ld-bg-base);
+  --color-ld-bg-elevated: var(--ld-bg-elevated);
+  --color-ld-accent: var(--ld-accent);
+  --color-ld-muted: var(--ld-text-muted);
+  --color-ld-border: var(--ld-border-default);
+
+  --radius-ld-sm: var(--ld-radius-sm);
+  --radius-ld-md: var(--ld-radius-md);
+  --radius-ld-lg: var(--ld-radius-lg);
+  --radius-ld-xl: var(--ld-radius-xl);
+}
+
+html {
+  color-scheme: dark;
+}
+
+body {
+  background: var(--ld-bg-deep);
+  color: var(--ld-text-primary);
+  font-family: var(--font-geist-sans), system-ui, sans-serif;
+}
+
+/* Ambient grain overlay */
+.ld-grain {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Privacy mode: blur monetary values */
+[data-privacy="true"] .ld-sensitive {
+  filter: blur(10px);
+  user-select: none;
+  transition: filter 0.35s ease;
+}
+
+[data-privacy="true"] .ld-sensitive:hover {
+  filter: blur(14px);
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
