@@ -49,11 +49,19 @@ Registro público deshabilitado en Supabase; solo inicio de sesión del propieta
 
 ## GitHub y Vercel
 
-- Repositorio previsto: `danielhdz4-ai/life-dashboard`
-- Importar el repo en Vercel y copiar las variables de `.env.example`
-- Configurar `CRON_SECRET` y la ruta cron definida en `vercel.json` (Fase 4)
+- **Repo:** https://github.com/danielhdz-ai/life-dashboard  
+  (La cuenta `danielhdz4-ai` no existe en GitHub; el repo está en `danielhdz-ai`.)
+- **Producción:** https://life-dashboard-seven-livid.vercel.app  
+- Variables de entorno ya cargadas en Vercel (desde `.env.local`, nunca en git).
+- Cron de correo: `0 8 * * *` (plan Hobby; en Pro se puede volver a cada 15 min).
 
-**No hacer push ni despliegue** hasta confirmación del propietario.
+Conectar Git en Vercel (si falla por permisos entre cuentas): en el dashboard de Vercel → Project → Git → conectar `danielhdz-ai/life-dashboard`.
+
+## Primer arranque Supabase (una vez)
+
+1. **Esquema:** en [SQL Editor](https://supabase.com/dashboard/project/tueitoafrrirfuhuxkxz/sql/new) pega y ejecuta `scripts/all-migrations.sql` (o `npx supabase link` + `supabase db push` con la contraseña de la base de datos).
+2. **Bootstrap:** `npm run setup:bootstrap` (perfil + 5 fuentes + Mercat 1.200 €/mes).
+3. **Login app:** credenciales generadas en `.setup/login-credentials.txt` (local, gitignored). Usuario Auth: `danielhernandezhv3@gmail.com`.
 
 ## Fases de desarrollo
 
